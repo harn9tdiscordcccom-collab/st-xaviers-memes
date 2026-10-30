@@ -1,0 +1,179 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>School Meme Club 😂</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #10111b;
+  color: white;
+}
+header {
+  background: #202238;
+  padding: 22px;
+  text-align: center;
+}
+header h1 { color: #ffcc55; margin: 0; }
+header p { color: #bbb; }
+main { max-width: 650px; margin: auto; padding: 18px; }
+.panel, .post {
+  background: #202238;
+  padding: 17px;
+  border-radius: 14px;
+  margin-bottom: 18px;
+}
+input, textarea, button {
+  font: inherit;
+  border-radius: 8px;
+  padding: 12px;
+}
+input, textarea {
+  width: 100%;
+  background: #30334c;
+  border: 1px solid #555;
+  color: white;
+  margin: 8px 0;
+}
+button {
+  background: #ffcc55;
+  color: #171717;
+  border: 0;
+  font-weight: bold;
+  cursor: pointer;
+}
+.post img {
+  width: 100%;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+.actions { display: flex; gap: 10px; margin-top: 12px; }
+.actions button { flex: 1; }
+.comment { color: #ddd; font-size: 14px; }
+small { color: #aaa; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>😂 SCHOOL MEME CLUB</h1>
+  <p>Study hard. Laugh harder.</p>
+</header>
+
+<main>
+  <section class="panel">
+    <h2>📸 Share a meme</h2>
+    <form id="memeForm">
+      <input id="caption" placeholder="Write a funny caption..." required>
+      <input id="photo" type="file" accept="image/png,image/jpeg,image/webp" required>
+      <label>
+        <input id="anonymous" type="checkbox" checked>
+        Post anonymously
+      </label>
+      <br><br>
+      <button type="submit">🚀 Post meme</button>
+    </form>
+  </section>
+
+  <h2>🔥 Latest memes</h2>
+  <div id="feed"></div>
+</main>
+
+<script>
+const memes = [];
+
+const feed = document.getElementById("feed");
+
+function render() {
+  feed.innerHTML = "";
+
+  memes.slice().reverse().forEach((meme) => {
+    const card = document.createElement("section");
+    card.className = "post";
+
+    const title = document.createElement("h3");
+    title.textContent = meme.caption;
+
+    const author = document.createElement("small");
+    author.textContent = meme.anonymous ? "🥷 Anonymous" : "Community member";
+
+    const img = document.createElement("img");
+    img.src = meme.image;
+    img.alt = "Community meme";
+
+    const actions = document.createElement("div");
+    actions.className = "actions";
+
+    const like = document.createElement("button");
+    like.textContent = `❤️ ${meme.likes}`;
+    like.onclick = () => {
+      meme.likes++;
+      render();
+    };
+
+    const commentInput = document.createElement("input");
+    commentInput.placeholder = "Write a comment...";
+
+    const commentButton = document.createElement("button");
+    commentButton.textContent = "Comment";
+    commentButton.onclick = () => {
+      if (commentInput.value.trim()) {
+        meme.comments.push(commentInput.value.trim());
+        render();
+      }
+    };
+
+    const comments = document.createElement("div");
+    meme.comments.forEach((comment) => {
+      const p = document.createElement("p");
+      p.className = "comment";
+      p.textContent = "💬 " + comment;
+      comments.appendChild(p);
+    });
+
+    actions.append(like);
+    card.append(title, author, img, actions,
+      commentInput, commentButton, comments);
+    feed.appendChild(card);
+  });
+}
+
+document.getElementById("memeForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const file = document.getElementById("photo").files[0];
+  const caption = document.getElementById("caption").value.trim();
+
+  if (!file || !caption) return;
+  if (file.size > 3 * 1024 * 1024) {
+    alert("Please choose an image under 3 MB.");
+    return;
+  }
+
+  if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+    alert("Only JPG, PNG and WebP images are allowed.");
+    return;
+  }
+
+  const image = URL.createObjectURL(file);
+
+  memes.push({
+    caption,
+    image,
+    anonymous: document.getElementById("anonymous").checked,
+    likes: 0,
+    comments: []
+  });
+
+  e.target.reset();
+  document.getElementById("anonymous").checked = true;
+  render();
+});
+</script>
+
+</body>
+</html>
